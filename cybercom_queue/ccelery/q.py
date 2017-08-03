@@ -299,11 +299,12 @@ class QueueTask():
                 result['previous']= "%s?page=%d&page_size=%d" % (reverse('queue-user-tasks', request=request),page-1,limit)
         result['meta']= {'page':page,'page_size':limit,'pages':math.ceil(float(result['count'])/float(limit))}
         for item in data:
-            for i, v in item['kwargs'].items():
-                try:
-                    item['kwargs'][i] = json.loads(v)
-                except:
-                    pass
+            if type(item['kwargs']) is dict:
+                for i, v in item['kwargs'].items():
+                    try:
+                        item['kwargs'][i] = json.loads(v)
+                    except:
+                        pass
             try:
                 item['result'] = reverse('queue-task-result', kwargs={'task_id': item['task_id']}, request=request)
             except:
