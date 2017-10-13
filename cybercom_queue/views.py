@@ -113,6 +113,8 @@ class Run(APIView):
             raise Exception("%s Queue is not available" % (queue))
         args = request.DATA.get('args', [])
         kwargs = request.DATA.get('kwargs', {})
+        if type(kwargs) is not dict:
+            return Response({'error': 'kwargs must be a JSON object'})
         tags = request.DATA.get('tags',[])
         result = self.q.run(task_name, args, kwargs, queue, self.get_username(request),tags)
         result['result_url']=reverse('queue-task-result', kwargs={'task_id':result['task_id']}, request=request)
