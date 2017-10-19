@@ -30,9 +30,19 @@ class APIRoot(APIView):
         return Response({
             'Queue': {'Tasks': reverse('queue-main', request=request),
                       'Tasks History': reverse('queue-user-tasks',request=request)},
+                             'Data Store': {'ETAG Postgresql':{'Readers':reverse('readers-list',request=request),
+                                              'Reader Location':reverse('readerlocation-list',request=request),
+                                              'Tags':reverse('tags-list',request=request),
+                                              'Tag Read':reverse('tagreads-list',request=request),
+                                              'Tag Animal':reverse('taganimal-list',request=request),
+                                              'Accessory Data':reverse('accessorydata-list',request=request),
+                                             },
+              'Mongo':reverse('data-list',request=request)
+                         },
             'Catalog': {'Data Source':reverse('catalog-list',request=request)},
-            'Data Store': {'Mongo':reverse('data-list',request=request)},
+
             'User Profile': {'User':reverse('user-list',request=request)}
+
         })
 
 class UserSerializer(serializers.Serializer):
