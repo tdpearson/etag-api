@@ -8,7 +8,7 @@ Docker api works in conjuction with docker cybercom/celery image.
 Installation:
  1. Install [Cybercommons](https://github.com/cybercommons/cybercom-cookiecutter)
     Installation instructions can be found at [docs](http://cybercom-docs.readthedocs.io/en/latest/installation.html)
- 2. git clone etag-api
+ 2. git clone [etag-api](https://github.com/etag/etag-api)
  3. docker build -t api .
          * Important etag-api uses different dependencies
  4. Setup postgres
@@ -20,4 +20,4 @@ Installation:
 	create user etagadmin with password 'etagadmin';
 	GRANT ALL PRIVILEGES ON DATABASE "etag" to etagadmin;
 	GRANT ALL PRIVILEGES ON DATABASE "etag_auth" to etagadmin;
- 
+ 5. git clone [portal](https://github.com/etag/portal)
