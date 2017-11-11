@@ -5,19 +5,19 @@ Django Rest API which includes Tasks, Catalog, Local Data Store
 
 Docker api works in conjuction with docker cybercom/celery image.
 
-First need to add config.sh
-
-wget -o config.py https://raw.githubusercontent.com/ouinformatics/ccstack-docker/master/api/api/config_example.py
-
-Adjust config.py to your configuration
-
-Docker API commands
-
-docker run -d --net=host -v /path/to/config.py:/usr/src/app/api/config.py cybercom/api
-
-This docker container export to localhost:8080
+Installation:
+ 1. Install [Cybercommons](https://github.com/cybercommons/cybercom-cookiecutter)
+    Installation instructions can be found at [docs](http://cybercom-docs.readthedocs.io/en/latest/installation.html)
+ 2. git clone etag-api
+ 3. docker build -t api .
+         * Important etag-api uses different dependencies
+ 4. Setup postgres
+	docker run -it -v <localpath with empty directory>:/var/lib/postgresql/data postgres
+	docker exec -it <container> /bin/bash
+	psql -U postgres
+	create database etag;
+	create database etag_auth;
+	create user etagadmin with password 'etagadmin';
+	GRANT ALL PRIVILEGES ON DATABASE "etag" to etagadmin;
+	GRANT ALL PRIVILEGES ON DATABASE "etag_auth" to etagadmin;
  
-Can proxy with NGINX
-
-Default User: admin
-Default Password: admin
