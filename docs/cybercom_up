@@ -99,5 +99,5 @@ docker run -p 80:80 --name etag_nginx \
 echo "******** Configure Cybercom **************"
 
 echo "********* Celery Requires wget ************"
-#docker exec -it etag_celery apt-get install wget
+docker exec -it etag_celery apt-get install wget
 
