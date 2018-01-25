@@ -34,9 +34,13 @@ class ReadersViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         user = self.request.user
-        if not user:
-            return []	
-        return Readers.objects.filter(user_id=user.id)
+	if self.request.user.is_authenticated():
+        	if not user:
+            		return []	
+        	return Readers.objects.filter(user_id=user.id)
+	public_tags = Tags.objects.filter(public=True).values_list('tag_id')
+        public_tag_readers = TagReads.objects.filter(tag_id__in=public_tags).values_list('reader_id')
+	return Readers.objects.filter(reader_id__in=public_tag_readers)
 
     def create(self, request):
         serializer = self.serializer_class(data=request.DATA)
@@ -65,10 +69,13 @@ class ReaderLocationViewSet(viewsets.ModelViewSet):
 	
     def get_queryset(self):
         user = self.request.user
-        if not user:
-            return []
-             
-        return ReaderLocation.objects.filter(reader__user_id = user.id)
+	if self.request.user.is_authenticated():
+        	if not user:
+            		return []
+        	return ReaderLocation.objects.filter(reader__user_id = user.id)
+	public_tags = Tags.objects.filter(public=True).values_list('tag_id')
+	public_tag_readers = TagReads.objects.filter(tag_id__in=public_tags).values_list('reader_id')
+	return ReaderLocation.objects.filter(reader_id__in=public_tag_readers)
 
 	
 class AnimalViewSet(viewsets.ModelViewSet):
@@ -85,10 +92,12 @@ class AnimalViewSet(viewsets.ModelViewSet):
 	
     def get_queryset(self):
         user = self.request.user
-        if not user:
-            return []
-             
-        return TagAnimal.objects.filter(tag__user_id = user.id)
+	if self.request.user.is_authenticated():
+        	if not user:
+            		return []
+        	return TagAnimal.objects.filter(tag__user_id = user.id)
+	public_tags = Tags.objects.filter(public=True).values_list('tag_id')
+        return TagAnimal.objects.filter(tag_id__in=public_tags)
 
 	
 class TagsViewSet(viewsets.ModelViewSet):
@@ -106,11 +115,11 @@ class TagsViewSet(viewsets.ModelViewSet):
 	
     def get_queryset(self):
         user = self.request.user
-        if self.request.user.is_authenticated():
-                if not user:
-                        return []
-                return Tags.objects.filter(user_id=user.id)
-        return Tags.objects.filter(public=True)
+	if self.request.user.is_authenticated():
+        	if not user:
+            		return []
+        	return Tags.objects.filter(user_id=user.id)
+	return Tags.objects.filter(public=True)
 		
     def create(self, request):
         serializer = self.serializer_class(data=request.DATA)
@@ -133,19 +142,20 @@ class TagReadsViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter)
     filter_class = TagReadsFilter
     search_fields = ('tag_id',)
-    ordering_fields =  '__all__' 	
+    ordering_fields =  '__all__' 
+	
     def get_queryset(self):
-        if self.request.user.is_authenticated():
-                public_data=self.request.DATA.get('public', None)
-                user = self.request.user
-                if public_data:
-                        return TagReads.objects.filter(tag__public = True)
-                elif not user:
-                        return []
-                else :
-                        return TagReads.objects.filter(tag__user_id = user.id)
-        public_tags = Tags.objects.filter(public=True).values_list('tag_id')
-        return TagReads.objects.filter(tag_id__in=public_tags)
+	if self.request.user.is_authenticated():
+		public_data=self.request.DATA.get('public', None)
+		user = self.request.user
+		if public_data:
+			return TagReads.objects.filter(tag__public = True)
+        	elif not user:
+            		return []
+		else :             
+        		return TagReads.objects.filter(tag__user_id = user.id)
+	public_tags = Tags.objects.filter(public=True).values_list('tag_id')
+	return TagReads.objects.filter(tag_id__in=public_tags)
 	
 class AccessoryDataViewSet(viewsets.ModelViewSet):
     """
