@@ -36,8 +36,10 @@ class ReadersViewSet(viewsets.ModelViewSet):
         user = self.request.user
 	if self.request.user.is_authenticated():
         	if not user:
-            		return []	
-        	return Readers.objects.filter(user_id=user.id)
+            		return []
+		private_tags = Tags.objects.filter(public=False,user_id=user.id).values_list('tag_id')
+		private_tag_readers = TagReads.objects.filter(tag_id__in=private_tags).values_list('reader_id')
+        	return Readers.objects.filter(reader_id__in=private_tag_readers)
 	public_tags = Tags.objects.filter(public=True).values_list('tag_id')
         public_tag_readers = TagReads.objects.filter(tag_id__in=public_tags).values_list('reader_id')
 	return Readers.objects.filter(reader_id__in=public_tag_readers)
@@ -72,7 +74,9 @@ class ReaderLocationViewSet(viewsets.ModelViewSet):
 	if self.request.user.is_authenticated():
         	if not user:
             		return []
-        	return ReaderLocation.objects.filter(reader__user_id = user.id)
+		private_tags = Tags.objects.filter(public=False,user_id=user.id).values_list('tag_id')
+                private_tag_readers = TagReads.objects.filter(tag_id__in=private_tags).values_list('reader_id')
+        	return ReaderLocation.objects.filter(reader_id__in=private_tag_readers)
 	public_tags = Tags.objects.filter(public=True).values_list('tag_id')
 	public_tag_readers = TagReads.objects.filter(tag_id__in=public_tags).values_list('reader_id')
 	return ReaderLocation.objects.filter(reader_id__in=public_tag_readers)
