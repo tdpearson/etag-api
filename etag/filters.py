@@ -1,7 +1,7 @@
 __author__ = 'mstacy'
 import django_filters
 
-from models import Readers, ReaderLocation,Tags, TagReads, TagAnimal
+from models import Readers, ReaderLocation,Tags, TagReads, TaggedAnimal
 
 
 class ReadersFilter(django_filters.FilterSet):
@@ -66,7 +66,7 @@ class AnimalFilter(django_filters.FilterSet):
     max_end_timestamp = django_filters.DateTimeFilter(name='end_timestamp', lookup_type='lte')
 
     class Meta:
-        model = TagAnimal
+        model = TaggedAnimal
         fields = ['tag','name','description','start_timestamp', 'end_timestamp']
 
     
