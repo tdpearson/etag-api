@@ -10,6 +10,7 @@ from rest_framework.parsers import JSONParser,MultiPartParser,FormParser,FileUpl
 from filters import *
 from etag.models import *
 from serializer import ReaderSerializer, AnimalSerializer,ReaderLocationSerializer,TagsSerializer,TagReadsSerializer
+from serializer import LocationsSerializer
 from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -80,7 +81,22 @@ class ReaderLocationViewSet(viewsets.ModelViewSet):
 	public_tag_readers = TagReads.objects.filter(public=True).values_list('reader_id')
 	return ReaderLocation.objects.filter(reader_id__in=public_tag_readers)
 
-	
+
+class LocationsViewSet(viewsets.ModelViewSet):
+    """
+    Locations table view set.
+    """
+    model = Locations
+    queryset = Locations.objects.all()
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    serializer_class = LocationsSerializer
+    renderer_classes = (BrowsableAPIRenderer, JSONRenderer,JSONPRenderer,XMLRenderer,YAMLRenderer)
+    filter_backends = (filters.DjangoFilterBackend, filters.SearchFilter,filters.OrderingFilter)
+    filter_class = LocationsFilter
+    search_fields = ('active')
+    ordering_fields = '__all__'
+
+
 class AnimalViewSet(viewsets.ModelViewSet):
     """
     Animal table view set.

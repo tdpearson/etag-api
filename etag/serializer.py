@@ -44,6 +44,12 @@ class ReaderLocationSerializer(serializers.HyperlinkedModelSerializer):
     #def create(self, validated_data):
      #   return Roosts.objects.using('purple').create(**validated_data)
 
+class LocationsSerializer(serializers.HyperlinkedModelSerializer):
+    location = serializers.SlugRelatedField(slug_field='location_id')
+    class Meta:
+        model = Locations
+        fields = ('url', 'location_id', 'name', 'latitude', 'longitude', 'active')
+
 class AnimalSerializer(serializers.HyperlinkedModelSerializer):
     tag = serializers.SlugRelatedField(slug_field='tag_id')
     field_data=WritableJSONField() #serializers.DictField()
