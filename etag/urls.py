@@ -3,7 +3,7 @@ from django.conf.urls import patterns, include, url
 from rest_framework import routers
 from rest_framework.urlpatterns import format_suffix_patterns
 from etag.views import ReadersViewSet,ReaderLocationViewSet,TagsViewSet,TagReadsViewSet
-from etag.views import AccessoryDataViewSet, AnimalViewSet,etagDataUploadView
+from etag.views import AnimalViewSet,etagDataUploadView
 
 
 router = routers.SimpleRouter()
@@ -12,7 +12,6 @@ router.register('reader_location', ReaderLocationViewSet)
 router.register('tags', TagsViewSet)
 router.register('tag_reads', TagReadsViewSet)
 router.register('tag_animal', AnimalViewSet)
-router.register('accessory', AccessoryDataViewSet)
 #router.register('lusource', LuSourceViewSet)
 
 urlpatterns = patterns('',

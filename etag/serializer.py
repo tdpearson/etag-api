@@ -1,6 +1,6 @@
 from rest_framework import serializers
 import json
-from models import Readers,ReaderLocation, TagAnimal, Tags,TagReads
+from models import *
 
 class WritableJSONField(serializers.WritableField):
     def to_native(self, obj):
@@ -28,7 +28,7 @@ class ReaderSerializer(serializers.HyperlinkedModelSerializer):
         """
         # Prepare the IDs you need for the URL reverse
         kwargs = {
-            'reader': obj.reader_id,
+            'reader_id': obj.reader_id,
         }
         url = reverse('readerlocation-list', kwargs=kwargs)
         return self.context['request'].build_absolute_uri(url)
@@ -40,7 +40,7 @@ class ReaderLocationSerializer(serializers.HyperlinkedModelSerializer):
     reader = serializers.SlugRelatedField(slug_field='reader_id')
     class Meta:
         model = ReaderLocation
-        fields = ('url','reader','latitude','longitude', 'start_timestamp','end_timestamp','active')
+        fields = ('url','reader_id','latitude','longitude', 'start_timestamp','end_timestamp','active')
     #def create(self, validated_data):
      #   return Roosts.objects.using('purple').create(**validated_data)
 
@@ -48,16 +48,16 @@ class AnimalSerializer(serializers.HyperlinkedModelSerializer):
     tag = serializers.SlugRelatedField(slug_field='tag_id')
     field_data=WritableJSONField() #serializers.DictField()
     class Meta:
-        model = TagAnimal
-        fields = ('url','tag','name','description','start_timestamp','end_timestamp','field_data',)
+        model = TaggedAnimal
+        fields = ('url','tag_id','animal_id','start_time','end_time','field_data',)
     #def create(self, validated_data):
      #   return Roosts.objects.using('purple').create(**validated_data)
 	 
 class TagsSerializer(serializers.HyperlinkedModelSerializer):
     #tag_animals = AnimalSerializer() 
     class Meta:
-        model = Tags
-        fields = ('url','tag_id','name','description','public')#'user_id')
+        model = TagOwner
+        fields = ('url','tag_id','start_time','end_time')#'user_id')
     #def create(self, validated_data):
      #   return Roosts.objects.using('purple').create(**validated_data)
 
@@ -69,6 +69,6 @@ class TagReadsSerializer(serializers.HyperlinkedModelSerializer):
     tag_url = serializers.HyperlinkedIdentityField(view_name='tags-detail')
     class Meta:
         model = TagReads
-        fields = ('url','reader','tag', 'tag_timestamp',)
+        fields = ('url','reader_id','tag_id', 'tag_read_time',)
     #def create(self, validated_data):
      #   return Roosts.objects.using('purple').create(**validated_data)

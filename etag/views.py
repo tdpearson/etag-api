@@ -7,8 +7,8 @@ from rest_framework.renderers import BrowsableAPIRenderer, JSONPRenderer,JSONRen
 from .renderer import eventdropsJSONRenderer
 from rest_framework.parsers import JSONParser,MultiPartParser,FormParser,FileUploadParser
 #from renderer import CustomBrowsableAPIRenderer
-from filters import ReadersFilter,ReaderLocationFilter, TagReadsFilter,TagsFilter, AnimalFilter
-from etag.models import Readers, TagAnimal, ReaderLocation,Tags,TagReads,AccessoryData
+from filters import *
+from etag.models import *
 from serializer import ReaderSerializer, AnimalSerializer,ReaderLocationSerializer,TagsSerializer,TagReadsSerializer
 from rest_framework import permissions
 from rest_framework.response import Response
@@ -28,15 +28,20 @@ class ReadersViewSet(viewsets.ModelViewSet):
     renderer_classes = (BrowsableAPIRenderer, JSONRenderer,JSONPRenderer,XMLRenderer,YAMLRenderer)
     filter_backends = (filters.DjangoFilterBackend, filters.SearchFilter,filters.OrderingFilter)
     filter_class = ReadersFilter
-    search_fields = ('name', 'description',)
-    ordering_fields =  '__all__'
+    search_fields = ('user', 'description',)
     ordering_fields = '__all__'
     
     def get_queryset(self):
         user = self.request.user
-        if not user:
-            return []	
-        return Readers.objects.filter(user_id=user.id)
+	if self.request.user.is_authenticated():
+        	if not user:
+            		return []
+		#private_tags = TagReads.objects.filter(public=False,user=user.id).values_list('tag_id')
+		private_tag_readers = TagReads.objects.filter(public=False,user=user.id).values_list('reader_id')
+        	return Readers.objects.filter(reader_id__in=private_tag_readers)
+	#public_tags = Tags.objects.filter(public=True).values_list('tag_id')
+        public_tag_readers = TagReads.objects.filter(public=True).values_list('reader_id')
+	return Readers.objects.filter(reader_id__in=public_tag_readers)
 
     def create(self, request):
         serializer = self.serializer_class(data=request.DATA)
@@ -60,57 +65,67 @@ class ReaderLocationViewSet(viewsets.ModelViewSet):
     renderer_classes = (BrowsableAPIRenderer, JSONRenderer,JSONPRenderer,XMLRenderer,YAMLRenderer)
     filter_backends = (filters.DjangoFilterBackend, filters.SearchFilter,filters.OrderingFilter)
     filter_class = ReaderLocationFilter
-    search_fields = ('name', 'latitude','longitude','start_timestamp','end_timestamp')
+    search_fields = ('start_timestamp','end_timestamp')
     ordering_fields = '__all__'
 	
     def get_queryset(self):
         user = self.request.user
-        if not user:
-            return []
-             
-        return ReaderLocation.objects.filter(reader__user_id = user.id)
+	if self.request.user.is_authenticated():
+        	if not user:
+            		return []
+		#private_tags = Tags.objects.filter(public=False,user_id=user.id).values_list('tag_id')
+        	private_tag_readers = TagReads.objects.filter(public=False,user=user.id).values_list('reader_id')
+		return ReaderLocation.objects.filter(reader_id__in=private_tag_readers)
+	#public_tags = Tags.objects.filter(public=True).values_list('tag_id')
+	public_tag_readers = TagReads.objects.filter(public=True).values_list('reader_id')
+	return ReaderLocation.objects.filter(reader_id__in=public_tag_readers)
 
 	
 class AnimalViewSet(viewsets.ModelViewSet):
     """
     Animal table view set.
     """
-    model = TagAnimal
+    model = TaggedAnimal
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
     serializer_class = AnimalSerializer
     renderer_classes = (BrowsableAPIRenderer, JSONRenderer,JSONPRenderer,XMLRenderer,YAMLRenderer)
     filter_backends = (filters.DjangoFilterBackend, filters.SearchFilter,filters.OrderingFilter)
-    filter_class = AnimalFilter
-    ordering_fields = ('name', 'description', 'end_timestamp', 'start_timestamp')
+    filter_class = TaggedAnimalFilter
+    ordering_fields = '__all__'
 	
     def get_queryset(self):
         user = self.request.user
-        if not user:
-            return []
-             
-        return TagAnimal.objects.filter(tag__user_id = user.id)
+	if self.request.user.is_authenticated():
+        	if not user:
+            		return []
+		user_tags = TagOwner.objects.filter(user=user.id).value_list('tag_id')
+		#private_tags = TagReads.objects.filter(public=False,tag_id__in=user_tags).values_list('tag_id').distinct()
+        	return TaggedAnimal.objects.filter(tag_id__in=user_tags,public=False)
+	public_tags = TagReads.objects.filter(public=True).values_list('tag_id').distinct()
+        return TaggedAnimal.objects.filter(tag_id__in=public_tags)
 
 	
 class TagsViewSet(viewsets.ModelViewSet):
     """
     Tags table view set.
     """
-    model = Tags
+    model = TagOwner
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
     serializer_class = TagsSerializer
     renderer_classes = (BrowsableAPIRenderer, JSONRenderer,JSONPRenderer,XMLRenderer,YAMLRenderer)
     filter_backends = (filters.DjangoFilterBackend, filters.SearchFilter ,filters.OrderingFilter)
-    filter_class = TagsFilter
+    filter_class = TagOwnerFilter
     search_fields = ('tag_id',)
     ordering_fields = '__all__'
 	
     def get_queryset(self):
         user = self.request.user
-        if self.request.user.is_authenticated():
-                if not user:
-                        return []
-                return Tags.objects.filter(user_id=user.id)
-        return Tags.objects.filter(public=True)
+	if self.request.user.is_authenticated():
+        	if not user:
+            		return []
+        	return TagOwner.objects.filter(user=user.id)
+	public_tags = TagReads.objects.filter(public=True).values_list('tag_id').distinct()
+	return TagOwner.objects.filter(tag_id__in=public_tags)
 		
     def create(self, request):
         serializer = self.serializer_class(data=request.DATA)
@@ -133,30 +148,18 @@ class TagReadsViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter)
     filter_class = TagReadsFilter
     search_fields = ('tag_id',)
-    ordering_fields =  '__all__' 	
-    def get_queryset(self):
-        if self.request.user.is_authenticated():
-                public_data=self.request.DATA.get('public', None)
-                user = self.request.user
-                if public_data:
-                        return TagReads.objects.filter(tag__public = True)
-                elif not user:
-                        return []
-                else :
-                        return TagReads.objects.filter(tag__user_id = user.id)
-        public_tags = Tags.objects.filter(public=True).values_list('tag_id')
-        return TagReads.objects.filter(tag_id__in=public_tags)
+    ordering_fields =  '__all__' 
 	
-class AccessoryDataViewSet(viewsets.ModelViewSet):
-    """
-    AccessoryData table view set.
-    """
-    model=AccessoryData
-    queryset = AccessoryData.objects.all()
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
-    renderer_classes = (BrowsableAPIRenderer, JSONRenderer, JSONPRenderer, XMLRenderer, YAMLRenderer)
-    search_fields = ('accessory_type', 'value')
-
+    def get_queryset(self):
+	user = self.request.user
+	if self.request.user.is_authenticated():
+        	if not user:
+            		return []
+		else :             
+        		return TagReads.objects.filter(user_id = user.id)
+	public_tags = TagReads.objects.filter(public=True).values_list('tag_id').distinct()
+	return TagReads.objects.filter(tag_id__in=public_tags)
+	
 
 class etagDataUploadView(APIView):
         permission_classes =(IsAuthenticated,)
