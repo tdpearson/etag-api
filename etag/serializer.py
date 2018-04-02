@@ -6,7 +6,7 @@ class WritableJSONField(serializers.WritableField):
     def to_native(self, obj):
         return obj #json.dumps(obj)
     def from_native(self,value):
-	return value #json.loads(value)
+    return value #json.loads(value)
 
 class JSONSerializerField(serializers.Field):
     """ Serializer for JSONField -- required to make field writable"""
@@ -59,7 +59,7 @@ class AnimalSerializer(serializers.HyperlinkedModelSerializer):
     #def create(self, validated_data):
      #   return Roosts.objects.using('purple').create(**validated_data)
 	 
-class TagsSerializer(serializers.HyperlinkedModelSerializer):
+class TagOwnerSerializer(serializers.HyperlinkedModelSerializer):
     #tag_animals = AnimalSerializer() 
     class Meta:
         model = TagOwner

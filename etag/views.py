@@ -9,7 +9,7 @@ from rest_framework.parsers import JSONParser,MultiPartParser,FormParser,FileUpl
 #from renderer import CustomBrowsableAPIRenderer
 from filters import *
 from etag.models import *
-from serializer import ReaderSerializer, AnimalSerializer,ReaderLocationSerializer,TagsSerializer,TagReadsSerializer
+from serializer import ReaderSerializer, AnimalSerializer,ReaderLocationSerializer,TagOwnerSerializer,TagReadsSerializer
 from serializer import LocationsSerializer
 from rest_framework import permissions
 from rest_framework.response import Response
@@ -114,20 +114,22 @@ class AnimalViewSet(viewsets.ModelViewSet):
 	if self.request.user.is_authenticated():
         	if not user:
             		return []
-		user_tags = TagOwner.objects.filter(user=user.id).value_list('tag_id')
+		user_tags = TagOwner.objects.filter(user=user.id).values_list('tag_id')
 		#private_tags = TagReads.objects.filter(public=False,tag_id__in=user_tags).values_list('tag_id').distinct()
-        	return TaggedAnimal.objects.filter(tag_id__in=user_tags,public=False)
+        	#return TaggedAnimal.objects.filter(tag_id__in=user_tags,public=False)
+        	return TaggedAnimal.objects.filter(tag_id__in=user_tags)
 	public_tags = TagReads.objects.filter(public=True).values_list('tag_id').distinct()
         return TaggedAnimal.objects.filter(tag_id__in=public_tags)
 
 	
-class TagsViewSet(viewsets.ModelViewSet):
+
+class TagOwnerViewSet(viewsets.ModelViewSet):
     """
-    Tags table view set.
+    Tag Owner table view set.
     """
     model = TagOwner
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
-    serializer_class = TagsSerializer
+    serializer_class = TagOwnerSerializer
     renderer_classes = (BrowsableAPIRenderer, JSONRenderer,JSONPRenderer,XMLRenderer,YAMLRenderer)
     filter_backends = (filters.DjangoFilterBackend, filters.SearchFilter ,filters.OrderingFilter)
     filter_class = TagOwnerFilter
