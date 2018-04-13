@@ -32,10 +32,9 @@ class APIRoot(APIView):
                       'Tasks History': reverse('queue-user-tasks',request=request)},
                              'Data Store': {'ETAG Postgresql':{'Readers':reverse('readers-list',request=request),
                                               'Reader Location':reverse('readerlocation-list',request=request),
-                                              'Tags':reverse('tags-list',request=request),
+                                              'Tags':reverse('tagowner-list',request=request),
                                               'Tag Read':reverse('tagreads-list',request=request),
-                                              'Tag Animal':reverse('taganimal-list',request=request),
-                                              'Accessory Data':reverse('accessorydata-list',request=request),
+                                              'Tag Animal':reverse('taggedanimal-list',request=request),
                                              },
               'Mongo':reverse('data-list',request=request)
                          },
