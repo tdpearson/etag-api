@@ -17,7 +17,7 @@ import collections
 class Readers(models.Model):
     reader_id = models.CharField(primary_key=True, max_length=10)
     description = models.CharField(max_length=255, blank=True)
-    user_id = models.ForeignKey(User,on_delete=models.CASCADE,db_column='user_id',)
+    user_id = models.IntegerField(blank=False,db_column='user_id',)
     class Meta:
         managed = False
         db_table = 'readers'
@@ -51,7 +51,7 @@ class TagReads(models.Model):
     tag_reads_id = models.AutoField(max_length=10,primary_key=True)
     reader_id = models.ForeignKey('Readers',on_delete=models.CASCADE,db_column='reader_id',)
     tag_id = models.ForeignKey('Tags',on_delete=models.CASCADE,db_column='tag_id',)
-    user_id = models.ForeignKey(User,on_delete=models.CASCADE,db_column='user_id')
+    user_id = models.IntegerField(blank=False,db_column='user_id')
     tag_read_time = models.DateTimeField()
     field_data = JSONField(blank=True,load_kwargs={'object_pairs_hook': collections.OrderedDict})
     public = models.BooleanField(default=False)
@@ -61,7 +61,7 @@ class TagReads(models.Model):
         unique_together = (("tag_reads_id","reader_id", "tag_id", "tag_read_time"),)
 
 class UploadLocation(models.Model):
-    user_id = models.ForeignKey(User,on_delete=models.CASCADE,db_column='user_id',)
+    user_id = models.IntegerField(blank=False,db_column='user_id',)
     location_id = models.ForeignKey('Locations',on_delete=models.CASCADE,db_column='location_id',)
     class Meta:
         managed = False
@@ -78,7 +78,7 @@ class ReaderLocation(models.Model):
         db_table = 'reader_location'
 
 class TagOwner(models.Model):
-    user_id = models.ForeignKey(User,on_delete=models.CASCADE,db_column='user_id',)
+    user_id = models.IntegerField(blank=False,db_column='user_id',)
     tag_id = models.OneToOneField('Tags',on_delete=models.CASCADE,primary_key=True,db_column='tag_id',)
     start_time = models.DateTimeField(blank=True, null=True)
     end_time = models.DateTimeField(blank=True, null=True)
