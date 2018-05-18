@@ -22,6 +22,11 @@ class ReaderSerializer(serializers.HyperlinkedModelSerializer):
         model = Readers
         fields = ('url','reader_id','description','user_id')
 
+class TagsSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Tags
+        fields = ('url','tag_id','description',)
+
 class ReaderLocationSerializer(serializers.HyperlinkedModelSerializer):
     reader_id = serializers.SlugRelatedField(slug_field='reader_id')
     location_id = serializers.SlugRelatedField(slug_field='location_id')
@@ -44,13 +49,9 @@ class TaggedAnimalSerializer(serializers.HyperlinkedModelSerializer):
 class TagOwnerSerializer(serializers.HyperlinkedModelSerializer):
     tag_id = serializers.SlugRelatedField(slug_field='tag_id')
     user_id = serializers.Field(source='user_id')
-    
-    def validate_user(self): 
-	return self.context['request'].user.id
-
     class Meta:
         model = TagOwner
-        fields = ('url','tag_id','start_time','end_time','user_id')
+        fields = ('url','tag_id','start_time','end_time','user_id',)
     #def create(self, validated_data):
      #   return Roosts.objects.using('purple').create(**validated_data)
 
