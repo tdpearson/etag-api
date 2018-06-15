@@ -16,6 +16,13 @@ class JSONSerializerField(serializers.Field):
     def to_representation(self, value):
         return value
 
+class AnimalsSerializer(serializers.HyperlinkedModelSerializer):
+    field_data=WritableJSONField()
+    animal_id = serializers.CharField(source='animal_id')
+    class Meta:
+        model = Animals
+        fields = ('url','animal_id','species','field_data')
+
 class ReaderSerializer(serializers.HyperlinkedModelSerializer):
     user_id = serializers.Field(source='user_id')
     class Meta:
@@ -74,3 +81,18 @@ class TagReadsSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('url','reader_id','tag_id','field_data','tag_read_time','public','user_id')
     #def create(self, validated_data):
      #   return Roosts.objects.using('purple').create(**validated_data)
+
+class AnimalHitReaderSerializer(serializers.HyperlinkedModelSerializer):
+    reader_id = serializers.SlugRelatedField(slug_field='reader_id')
+    tag_id = serializers.SlugRelatedField(slug_field='tag_id')
+    animal_id = serializers.SlugRelatedField(slug_field='animal_id')
+    class Meta:
+        model = AnimalHitReader
+        fields = ('url','reader_id','tag_id','animal_id')
+
+class UploadLocationSerializer(serializers.HyperlinkedModelSerializer):
+    user_id = serializers.Field(source='user_id')
+    location_id = serializers.SlugRelatedField(slug_field='location_id')
+    class Meta:
+        model = UploadLocation
+        fields = ('url','location_id','user_id')

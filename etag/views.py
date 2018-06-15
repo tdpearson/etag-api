@@ -9,7 +9,8 @@ from rest_framework.parsers import JSONParser,MultiPartParser,FormParser,FileUpl
 #from renderer import CustomBrowsableAPIRenderer
 from filters import *
 from etag.models import *
-from serializer import ReaderSerializer, TaggedAnimalSerializer,ReaderLocationSerializer,TagOwnerSerializer,TagReadsSerializer,TagsSerializer,LocationsSerializer
+from serializer import *
+#from serializer import AnimalsSerializer,ReaderSerializer,TaggedAnimalSerializer,ReaderLocationSerializer,TagOwnerSerializer,TagReadsSerializer,TagsSerializer,LocationsSerializer
 from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -43,9 +44,34 @@ class ReadersViewSet(viewsets.ModelViewSet):
     def pre_save(self, obj):
         obj.user_id = self.request.user.id
 
+class AnimalsViewSet(viewsets.ModelViewSet):
+    """
+    RFID Animal table view set.
+    """
+    model = Animals
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    serializer_class = AnimalsSerializer
+    renderer_classes = (BrowsableAPIRenderer, JSONRenderer,JSONPRenderer,XMLRenderer,YAMLRenderer)
+    filter_backends = (filters.DjangoFilterBackend, filters.SearchFilter,filters.OrderingFilter)
+    filter_class = AnimalsFilter
+    #search_fields = ('user', 'description',)
+    ordering_fields = '__all__'
+    
+    #def get_queryset(self):
+    #    user = self.request.user
+    #    if self.request.user.is_authenticated():
+    #            if not user:
+    #                    return []
+    #            return Readers.objects.filter(user_id=user.id)
+    #    public_tag_readers = TagReads.objects.filter(public=True).values_list('reader_id')
+    #    return Readers.objects.filter(reader_id__in=public_tag_readers)
+
+    #def pre_save(self, obj):
+    #    obj.user_id = self.request.user.id
+
 class LocationsViewSet(viewsets.ModelViewSet):
     """
-    RFID Readers table view set.
+    RFID Locations table view set.
     """
     model = Locations
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
@@ -96,7 +122,7 @@ class ReaderLocationViewSet(viewsets.ModelViewSet):
 	
 class TaggedAnimalViewSet(viewsets.ModelViewSet):
     """
-    Animal table view set.
+    Tagged Animal table view set.
     """
     model = TaggedAnimal
     queryset = TaggedAnimal.objects.all()
@@ -187,6 +213,36 @@ class TagReadsViewSet(viewsets.ModelViewSet):
 		else :             
         		return TagReads.objects.filter(user_id = user.id)
 	return TagReads.objects.filter(public=True)
+
+    def pre_save(self, obj):
+        obj.user_id = self.request.user.id
+
+class AnimalHitReaderViewSet(viewsets.ModelViewSet):
+    """
+    RFID AnimalHitReader table view set.
+    """
+    model = AnimalHitReader
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    serializer_class = AnimalHitReaderSerializer
+    renderer_classes = (BrowsableAPIRenderer, JSONRenderer,JSONPRenderer,XMLRenderer,YAMLRenderer)
+    filter_backends = (filters.DjangoFilterBackend, filters.SearchFilter,filters.OrderingFilter)
+    filter_class = AnimalHitReaderFilter
+    #search_fields = ('user', 'description',)
+    ordering_fields = '__all__'
+
+
+class UploadLocationViewSet(viewsets.ModelViewSet):
+    """
+    RFID UploadLocation table view set.
+    """
+    model = UploadLocation
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    serializer_class = UploadLocationSerializer
+    renderer_classes = (BrowsableAPIRenderer, JSONRenderer,JSONPRenderer,XMLRenderer,YAMLRenderer)
+    filter_backends = (filters.DjangoFilterBackend, filters.SearchFilter,filters.OrderingFilter)
+    filter_class = UploadLocationFilter
+    #search_fields = ('user', 'description',)
+    ordering_fields = '__all__'
 
     def pre_save(self, obj):
         obj.user_id = self.request.user.id
