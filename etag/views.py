@@ -57,18 +57,6 @@ class AnimalsViewSet(viewsets.ModelViewSet):
     #search_fields = ('user', 'description',)
     ordering_fields = '__all__'
     
-    #def get_queryset(self):
-    #    user = self.request.user
-    #    if self.request.user.is_authenticated():
-    #            if not user:
-    #                    return []
-    #            return Readers.objects.filter(user_id=user.id)
-    #    public_tag_readers = TagReads.objects.filter(public=True).values_list('reader_id')
-    #    return Readers.objects.filter(reader_id__in=public_tag_readers)
-
-    #def pre_save(self, obj):
-    #    obj.user_id = self.request.user.id
-
 class LocationsViewSet(viewsets.ModelViewSet):
     """
     RFID Locations table view set.
@@ -93,8 +81,6 @@ class LocationsViewSet(viewsets.ModelViewSet):
         public_reader_loc = ReaderLocation.objects.filter(reader_id__in=public_reader_ids).values_list('location_id').distinct()
         return Locations.objects.filter(location_id__in=public_reader_loc)
 
-    #def pre_save(self, obj):
-    #    obj.user_id = self.request.user.id
 
 class ReaderLocationViewSet(viewsets.ModelViewSet):
     """
@@ -156,6 +142,7 @@ class TagsViewSet(viewsets.ModelViewSet):
     filter_class = TagsFilter
     #search_fields = ('tag_id',)
     ordering_fields = '__all__'
+
     def get_queryset(self):
         user = self.request.user
         if self.request.user.is_authenticated():
@@ -179,6 +166,7 @@ class TagOwnerViewSet(viewsets.ModelViewSet):
     filter_class = TagOwnerFilter
     #search_fields = ('tag_id',)
     ordering_fields = '__all__'
+
     def get_queryset(self):
         user = self.request.user
 	if self.request.user.is_authenticated():
@@ -230,6 +218,17 @@ class AnimalHitReaderViewSet(viewsets.ModelViewSet):
     #search_fields = ('user', 'description',)
     ordering_fields = '__all__'
 
+    def get_queryset(self):
+        user = self.request.user
+        if self.request.user.is_authenticated():
+                if not user:
+                        return []
+                else :
+			private_tags = TagReads.objects.filter(public=False,user_id=user.id).values_list('tag_id').distinct()
+                        return AnimalHitReader.objects.filter(tag_id__in=private_tags)
+	public_tags = TagReads.objects.filter(public=True).values_list('tag_id').distinct()
+        return AnimalHitReader.objects.filter(tag_id__in=public_tags)
+
 
 class UploadLocationViewSet(viewsets.ModelViewSet):
     """
@@ -243,6 +242,15 @@ class UploadLocationViewSet(viewsets.ModelViewSet):
     filter_class = UploadLocationFilter
     #search_fields = ('user', 'description',)
     ordering_fields = '__all__'
+
+    def get_queryset(self):
+        user = self.request.user
+        if self.request.user.is_authenticated():
+                if not user:
+                        return []
+                else :
+                        return UploadLocation.objects.filter(user_id = user.id)
+        return UploadLocation.objects.all()
 
     def pre_save(self, obj):
         obj.user_id = self.request.user.id
