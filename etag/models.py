@@ -18,6 +18,7 @@ class Readers(models.Model):
     reader_id = models.CharField(primary_key=True, max_length=10)
     description = models.CharField(max_length=255, blank=True)
     user_id = models.IntegerField(blank=False,db_column='user_id',)
+
     class Meta:
         managed = False
         db_table = 'readers'
@@ -67,6 +68,7 @@ class UploadLocation(models.Model):
         managed = False
         db_table = 'upload_location'
         unique_together = (("user_id","location_id"),)
+
 
 class ReaderLocation(models.Model):
     reader_id = models.OneToOneField(Readers, on_delete=models.CASCADE, primary_key=True,db_column='reader_id',)
