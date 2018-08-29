@@ -131,12 +131,12 @@ class TaggedAnimalViewSet(viewsets.ModelViewSet):
 
 class TagsViewSet(viewsets.ModelViewSet):
     """
-    Tag Owner table view set.
+    Tags table view set.
     """
     model = Tags
     queryset = Tags.objects.all()
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
-    serializer_class = TagOwnerSerializer
+    serializer_class = TagsSerializer
     renderer_classes = (BrowsableAPIRenderer, JSONRenderer,JSONPRenderer,XMLRenderer,YAMLRenderer)
     filter_backends = (filters.DjangoFilterBackend, filters.SearchFilter ,filters.OrderingFilter)
     filter_class = TagsFilter
