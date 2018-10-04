@@ -17,7 +17,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 import os, requests,json
 #import DjangoModelPermissionsOrAnonReadOnly
-
+import uuid
 
 class ReadersViewSet(viewsets.ModelViewSet):
     """
@@ -266,12 +266,16 @@ class fileDataUploadView(APIView):
         #check if uploadDirectory exists
         if not os.path.isdir(uploadDirectory):
             os.makedirs(uploadDirectory)
+        username = request.user.username
+        user_uploadDirectory = "{0}/{1}".format(uploadDirectory, username)
+        if not os.path.isdir(user_uploadDirectory):
+            os.makedirs(user_uploadDirectory)
         results=[]
         #upload files submitted
         for key,value in request.FILES.iteritems():
             result={}
-            filename= value.name
-            local_file = "{0}/{1}".format(uploadDirectory,filename)
+            filename= str(uuid.uuid4()) 
+            local_file = "{0}/{1}".format(user_uploadDirectory,filename)
             self.handle_file_upload(request.FILES[key],local_file)
             result[key]=local_file
             if request.DATA.get("callback",None):
